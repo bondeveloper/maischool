@@ -1,10 +1,38 @@
 version: "3.8"
 services:
   app:
-    container_name: maischool
+    container_name: maischool_app
     build:
       context: .
     ports:
       - "8000:8000"
     volumes:
       - ./app:/app
+    environment:
+      - DB_HOST=db
+      - DB_NAME=maischool
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+    depends_on:
+      - db
+    command: sh -c "python manage.py makemigrations &&
+                    python manage.py migrate &&
+                    python manage.py runserver 0.0.0.0:8000"
+    networks:
+      - maischool_network
+
+  db:
+    image: postgres:latest
+    container_name: maischool_db
+    environment:
+      - POSTGRES_DB=maischool
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      - maischool_network
+    ports:
+      - "5432:5432"
+
+networks:
+  maischool_network:
+    driver: bridge
