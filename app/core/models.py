@@ -41,3 +41,8 @@ class Category(models.Model):
 
     basename = models.CharField(unique=True, max_length=255)
     displayname = models.CharField(max_length=255)
+
+
+class Account(models.Model):
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
