@@ -6,7 +6,9 @@ class ModelsTest(TestCase):
     TEST_DATA = {
         "email": "test@bondeveloper.com",
         "password": "123123",
-        "normalize_email": "test@BONDEVELOPER.COM"
+        "normalize_email": "test@BONDEVELOPER.COM",
+        "first_name": "Test Firstname",
+        "last_name": "Test Lastname",
     }
 
     def test_create_user_with_email(self):
@@ -28,18 +30,18 @@ class ModelsTest(TestCase):
 
         self.assertEqual(user.email, self.TEST_DATA.get("email"))
 
-    def test_create_user_email_not_empty(self):
+    def test_create_user_emai_required(self):
 
         with self.assertRaises(ValueError):
             get_user_model().objects.create_user(
-                password=self.TEST_DATA.get("password")
+                password=self.TEST_DATA.get("password"),
             )
 
     def test_create_user_password_not_empty(self):
 
         with self.assertRaises(ValueError):
             get_user_model().objects.create_user(
-                email=self.TEST_DATA.get("email")
+                email=self.TEST_DATA.get("email"),
             )
 
     def test_create_super_user(self):

@@ -8,7 +8,7 @@ class UserManager(BaseUserManager):
     def create_user(self, email=None, password=None, **extra_fields):
 
         if not email or not password:
-            raise ValueError("Email / Password cannot be empty.")
+            raise ValueError("Please fill in all the required fields.")
 
         user = self.model(email=self.normalize_email(email), **extra_fields)
         user.set_password(password)
@@ -17,7 +17,7 @@ class UserManager(BaseUserManager):
         return user
 
     def create_superuser(self, email=None, password=None, **extra_fields):
-        superuser = self.create_user(email, password)
+        superuser = self.create_user(email, password, **extra_fields)
         superuser.is_superuser = True
 
         superuser.save(using=self._db)
@@ -28,9 +28,11 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser, PermissionsMixin):
 
     email = models.EmailField(unique=True, max_length=255)
-    username = models.CharField(max_length=255, default='unknown')
+    username = models.CharField(max_length=255)
+    first_name = models.CharField(max_length=255)
+    last_name = models.CharField(max_length=255)
     is_staff = models.BooleanField(default=True)
-    is_active = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
 
     objects = UserManager()
 

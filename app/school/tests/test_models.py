@@ -1,6 +1,7 @@
 from django.test import TestCase
 
 from core.models import Category
+from school.serializers import CategorySerializer
 
 
 def sample_category(basename="primary-school", displayname="Primary School"):
@@ -13,25 +14,28 @@ def sample_category(basename="primary-school", displayname="Primary School"):
 class TestCategoryModel(TestCase):
 
     def test_create_category(self):
-        category = sample_category()
+        saved = sample_category()
+        saved = CategorySerializer(saved).data
 
-        self.assertEqual(category.basename, "primary-school")
-        self.assertEqual(category.displayname, "Primary School")
+        category = Category.objects.all()[0]
+        category = CategorySerializer(category).data
 
-    def test_update_category(self):
-        category = sample_category()
+        self.assertEquals(category, saved)
+        self.assertEquals(category.get('basename'), "primary-school")
+        self.assertEquals(category.get('displayname'), "Primary School")
 
-        to_update = Category.objects.all()[0]
+    def test_update_category_displayname(self):
+        saved = sample_category()
 
-        self.assertEqual(to_update.basename, category.basename)
-        self.assertEqual(to_update.displayname, category.displayname)
-
-        to_update.basename = "primary-sch"
-        to_update.save()
+        saved.basename = "primary-sch"
+        saved.save()
+        saved = CategorySerializer(saved).data
 
         updated = Category.objects.all()[0]
+        updated = CategorySerializer(updated).data
 
-        self.assertNotEqual(updated.basename, category.basename)
+        self.assertEquals(updated, saved)
+        self.assertEquals(updated.get('basename'), "primary-sch")
 
     def test_list_categories(self):
         sample_category()
@@ -41,8 +45,9 @@ class TestCategoryModel(TestCase):
         )
 
         categories = Category.objects.all()
+        categories = CategorySerializer(categories, many=True).data
 
-        self.assertEqual(len(categories), 2)
+        self.assertEquals(len(categories), 2)
 
     def test_remove_category(self):
         sample_category()
@@ -52,11 +57,12 @@ class TestCategoryModel(TestCase):
         )
 
         categories = Category.objects.all()
-
-        self.assertEqual(len(categories), 2)
+        categories = CategorySerializer(categories, many=True).data
+        self.assertEquals(len(categories), 2)
 
         Category.objects.all()[0].delete()
         categories = Category.objects.all()
+        categories = CategorySerializer(categories, many=True).data
 
-        self.assertNotEqual(len(categories), 2)
-        self.assertEqual(len(categories), 1)
+        self.assertNotEquals(len(categories), 2)
+        self.assertEquals(len(categories), 1)

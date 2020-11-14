@@ -8,3 +8,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id', 'email', 'created')
         read_only_fields = ('id',)
+
+    def update(self, instance, validated_data):
+        validated_data.pop('email', None)
+        return super().update(instance, validated_data)

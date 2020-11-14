@@ -9,3 +9,7 @@ class CategorySerializer(serializers.ModelSerializer):
         model = Category
         fields = ('id', 'basename', 'displayname')
         read_only_fields = ('id',)
+
+    def update(self, instance, validated_data):
+        validated_data.pop('basename', None)
+        return super().update(instance, validated_data)
