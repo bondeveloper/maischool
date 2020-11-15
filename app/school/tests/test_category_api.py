@@ -9,6 +9,7 @@ from school.serializers import CategorySerializer
 
 
 category_create_url = reverse('school:category-create')
+category_list_url = reverse('school:category-list')
 category_payload = {"basename": "primary-school",
                     "displayname": "Primary School"}
 
@@ -16,6 +17,11 @@ category_payload = {"basename": "primary-school",
 reg_url = '/api/accounts/auth/registration/'
 login_url = '/api/accounts/auth/login/'
 
+def sample_category(basename="primary-school", displayname="Primary School"):
+    return Category.objects.create(
+        basename=basename,
+        displayname=displayname
+    )
 
 class PrivateCategoryTestApi(TestCase):
     def setUp(self):
@@ -86,17 +92,79 @@ class PrivateCategoryTestApi(TestCase):
         res = self.client.post(category_create_url, payload)
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('displayname', res.data.keys())
+        self.assertEquals(str(res.data.get('displayname')[0]),
+                          'This field may not be blank.')
 
-    # def test_update_category_basename_not_allowed(self):
-    #     saved = sample_category()
-    #
-    #     saved.basename = "primary-sch"
-    #     saved.save()
-    #     saved = CategorySerializer(saved).data
-    #
-    #     updated = Category.objects.all()[0]
-    #     updated = CategorySerializer(saved).data
-    #     print(updated)
-    #     print(saved)
-    #
-    #     self.assertNotEquals(updated.get('basename'), saved.get('basename'))
+    def test_update_category_basename_not_allowed(self):
+        saved = sample_category()
+        saved.basename = "test-update"
+        sanitizer = CategorySerializer(saved)
+
+        res = self.client.put(reverse('school:category-update',
+                                      args=[sanitizer.data.get('id')]),
+                              sanitizer.data, format='json')
+
+
+        self.assertEquals(res.status_code, status.HTTP_200_OK)
+        self.assertNotEquals(res.data, sanitizer.data)
+        self.assertEquals(res.data.get('basename'), "primary-school")
+
+    def test_update_displayname_successful(self):
+        saved = sample_category()
+        saved.displayname = "test-update display"
+        sanitizer = CategorySerializer(saved)
+
+        res = self.client.put(reverse('school:category-update',
+                                      args=[sanitizer.data.get('id')]),
+                              sanitizer.data, format='json')
+
+
+        self.assertEquals(res.status_code, status.HTTP_200_OK)
+        self.assertEquals(res.data, sanitizer.data)
+        self.assertEquals(res.data.get('displayname'), "test-update display")
+
+    def test_list_categories(self):
+        sample_category()
+        Category.objects.create(
+            basename="college",
+            displayname="College"
+        )
+        Category.objects.create(
+            basename="university",
+            displayname="University"
+        )
+
+        res = self.client.get(category_list_url)
+
+        self.assertEquals(res.status_code, status.HTTP_200_OK)
+        self.assertTrue(len(res.data), 3)
+
+    def test_remove_category(self):
+        saved = sample_category()
+        sanitizer = CategorySerializer(saved)
+
+        Category.objects.create(
+            basename="college",
+            displayname="College"
+        )
+
+        res = self.client.delete(reverse('school:category-delete',
+                                      args=[sanitizer.data.get('id')]),
+                                 sanitizer.data, format='json')
+
+        list = Category.objects.all()
+        sanitizer = CategorySerializer(list, many=True)
+
+        self.assertEquals(res.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertTrue(len(sanitizer.data), 1)
+
+    def test_view_category(self):
+        saved = sample_category()
+        sanitizer = CategorySerializer(saved)
+
+        res = self.client.get(reverse('school:category-view',
+                                      args=[sanitizer.data.get('id')]),
+                                 sanitizer.data, format='json')
+
+        self.assertEquals(res.status_code, status.HTTP_200_OK)
