@@ -17,11 +17,13 @@ category_payload = {"basename": "primary-school",
 reg_url = '/api/accounts/auth/registration/'
 login_url = '/api/accounts/auth/login/'
 
+
 def sample_category(basename="primary-school", displayname="Primary School"):
     return Category.objects.create(
         basename=basename,
         displayname=displayname
     )
+
 
 class PrivateCategoryTestApi(TestCase):
     def setUp(self):
@@ -105,7 +107,6 @@ class PrivateCategoryTestApi(TestCase):
                                       args=[sanitizer.data.get('id')]),
                               sanitizer.data, format='json')
 
-
         self.assertEquals(res.status_code, status.HTTP_200_OK)
         self.assertNotEquals(res.data, sanitizer.data)
         self.assertEquals(res.data.get('basename'), "primary-school")
@@ -118,7 +119,6 @@ class PrivateCategoryTestApi(TestCase):
         res = self.client.put(reverse('school:category-update',
                                       args=[sanitizer.data.get('id')]),
                               sanitizer.data, format='json')
-
 
         self.assertEquals(res.status_code, status.HTTP_200_OK)
         self.assertEquals(res.data, sanitizer.data)
@@ -150,7 +150,7 @@ class PrivateCategoryTestApi(TestCase):
         )
 
         res = self.client.delete(reverse('school:category-delete',
-                                      args=[sanitizer.data.get('id')]),
+                                         args=[sanitizer.data.get('id')]),
                                  sanitizer.data, format='json')
 
         list = Category.objects.all()
@@ -165,6 +165,6 @@ class PrivateCategoryTestApi(TestCase):
 
         res = self.client.get(reverse('school:category-view',
                                       args=[sanitizer.data.get('id')]),
-                                 sanitizer.data, format='json')
+                              sanitizer.data, format='json')
 
         self.assertEquals(res.status_code, status.HTTP_200_OK)
