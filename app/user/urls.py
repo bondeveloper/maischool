@@ -6,5 +6,5 @@ app_name = 'user'
 
 urlpatterns = [
     path('', views.ListUserView.as_view(), name="list"),
-    path('view/<int:pk>', views.RetrieveUserView.as_view(), name="view"),
+    path('detail/<int:pk>', views.RetrieveUserView.as_view(), name="detail"),
 ]

@@ -1,13 +1,31 @@
 from django.test import TestCase
+from django.contrib.auth import get_user_model
 
-from core.models import Category
-from school.serializers import CategorySerializer
+from core.models import Category, School
+from school.serializers import CategorySerializer, SchoolSerializer
+from user.serializers import UserSerializer
+
+
+def sample_school(basename="test-school", name="test school"):
+    return School.objects.create(
+        basename=basename,
+        name=name,
+        category=sample_category(),
+    )
 
 
 def sample_category(basename="primary-school", displayname="Primary School"):
     return Category.objects.create(
         basename=basename,
         displayname=displayname
+    )
+
+
+def sample_user():
+    return get_user_model().objects.create(
+        username="testuser01",
+        email="testuser@bondeveloper.coom",
+        password="Qwerty!@#",
     )
 
 
@@ -66,3 +84,102 @@ class TestCategoryModel(TestCase):
 
         self.assertNotEquals(len(categories), 2)
         self.assertEquals(len(categories), 1)
+
+
+class TestSchoolModel(TestCase):
+
+    def test_create_school(self):
+        saved = sample_school()
+        saved.users.add(sample_user())
+        saved.save()
+        saved = SchoolSerializer(saved)
+
+        school = School.objects.all()[0]
+        serializer = SchoolSerializer(school)
+
+        self.assertEquals(serializer.data,  saved.data)
+
+    def test_update_school_name(self):
+        saved = sample_school()
+        saved.users.add(sample_user())
+        saved.name = "Updated name"
+        saved.save()
+        saved = SchoolSerializer(saved)
+
+        self.assertEquals(saved.data.get('name'),  "Updated name")
+
+    def test_school_list(self):
+        saved = sample_school()
+        saved.users.add(sample_user())
+        saved.save()
+        category01 = Category.objects.create(
+            basename="high-school",
+            displayname="High School"
+        )
+        category02 = Category.objects.create(
+            basename="college",
+            displayname="College"
+        )
+        user1 = get_user_model().objects.create(
+            username="testuser02",
+            email="testuser02@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+        user2 = get_user_model().objects.create(
+            username="testuser03",
+            email="testuser03@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+
+        School.objects.create(
+            basename="bbg",
+            name="Beitbridge Gvt",
+            category=category01,
+        ).users.add(user1)
+        School.objects.create(
+            basename="mckeurtan",
+            name="Mckeurtan",
+            category=category02,
+        ).users.add(user2)
+
+        list = School.objects.all()
+        serializer = SchoolSerializer(list, many=True)
+        self.assertTrue(len(serializer.data), 3)
+
+    def test_school_delete_school(self):
+        sample_school().users.add(sample_user())
+        category01 = Category.objects.create(
+            basename="high-school",
+            displayname="High School"
+        )
+
+        user1 = get_user_model().objects.create(
+            username="testuser02",
+            email="testuser02@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+
+        School.objects.create(
+            basename="bbg",
+            name="Beitbridge Gvt",
+            category=category01,
+        ).users.add(user1)
+
+        list = School.objects.all()
+        school = list[0]
+        serializer = SchoolSerializer(list, many=True)
+        self.assertEquals(len(serializer.data), 2)
+
+        list = Category.objects.all()
+        serializer = CategorySerializer(list, many=True)
+        self.assertEquals(len(serializer.data), 2)
+
+        list = get_user_model().objects.all()
+        serializer = UserSerializer(list, many=True)
+        self.assertEquals(len(serializer.data), 2)
+
+        school.delete()
+
+        list = School.objects.all()
+        serializer = SchoolSerializer(list, many=True)
+        self.assertNotEquals(len(serializer.data), 2)

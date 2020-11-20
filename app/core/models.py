@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, \
                                     PermissionsMixin
+from django.contrib.auth import get_user_model
 
 
 class UserManager(BaseUserManager):
@@ -36,7 +37,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     objects = UserManager()
 
-    USERNAME_FIELD = "email"
+    USERNAME_FIELD = 'email'
 
 
 class Category(models.Model):
@@ -45,6 +46,10 @@ class Category(models.Model):
     displayname = models.CharField(max_length=255)
 
 
-class Account(models.Model):
+class School(models.Model):
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    basename = models.CharField(unique=True, max_length=255)
+    name = models.CharField(max_length=255)
+    category = models.ForeignKey(Category, on_delete=models.DO_NOTHING,
+                                 blank=True, null=True)
+    users = models.ManyToManyField(get_user_model())

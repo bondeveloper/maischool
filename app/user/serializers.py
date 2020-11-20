@@ -6,8 +6,10 @@ from core.models import User
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'email', 'created')
+        fields = ('id', 'username', 'last_name', 'first_name',
+                  'email', 'password')
         read_only_fields = ('id',)
+        extra_kwargs = {'password': {'write_only': True}}
 
     def update(self, instance, validated_data):
         validated_data.pop('email', None)

@@ -1,7 +1,8 @@
 from rest_framework import generics
+from rest_framework.permissions import AllowAny
 
-from school.serializers import CategorySerializer
-from core.models import Category
+from school.serializers import CategorySerializer, SchoolSerializer
+from core.models import Category, School
 
 
 class CreateCategoryView(generics.CreateAPIView):
@@ -26,3 +27,29 @@ class DestroyCategoryView(generics.DestroyAPIView):
 class ViewCategoryView(generics.RetrieveAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+
+
+class CreateSchoolView(generics.CreateAPIView):
+    serializer_class = SchoolSerializer
+    permission_classes = (AllowAny,)
+
+
+class ListSchoolView(generics.ListAPIView):
+    queryset = School.objects.all()
+    serializer_class = SchoolSerializer
+
+class UpdateSchoolView(generics.UpdateAPIView):
+    queryset = School.objects.all()
+    serializer_class = SchoolSerializer
+#
+# class RetrieveSchoolView(generics.RetrieveAPIView):
+#     # queryset = School.objects.all()
+#     serializer_class = SchoolSerializer
+#     permission_classes = (AllowAny,)
+#
+
+
+# class CreateSchoolUserView(generics.CreateAPIView):
+#     queryset = School.objects.all()
+#     serializer_class = SchoolSerializer
+#     permission_classes = (AllowAny,)

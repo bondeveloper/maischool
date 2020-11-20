@@ -1,7 +1,8 @@
 from django.urls import path
 from school.views import CreateCategoryView, UpdateCategoryView, \
                          ListCategoryView, DestroyCategoryView, \
-                         ViewCategoryView
+                         ViewCategoryView, CreateSchoolView, ListSchoolView, \
+                         UpdateSchoolView
 
 app_name = 'school'
 
@@ -14,6 +15,14 @@ urlpatterns = [
          name='category-update'),
     path('category/<int:pk>/delete/', DestroyCategoryView.as_view(),
          name='category-delete'),
-    path('category/<int:pk>/view', ViewCategoryView.as_view(),
+    path('category/<int:pk>/view/', ViewCategoryView.as_view(),
          name='category-view'),
+    path('create/', CreateSchoolView.as_view(), name="create"),
+    path('', ListSchoolView.as_view(), name="list"),
+    path('<int:pk>/update/', UpdateSchoolView.as_view(), name="update"),
+    # path('<int:pk>/update/', UpdateSchoolView.as_view(), name="update"),
+    # path('<int:pk>/view/', UpdateSchoolView.as_view(), name="view"),
+    # path('', ListSchoolView.as_view(), name="list"),
+    # path('<int:pk>/user/create/', CreateSchoolUserView.as_view(),
+    #     name="school-user"),
 ]
