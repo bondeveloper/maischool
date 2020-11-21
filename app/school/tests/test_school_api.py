@@ -6,7 +6,7 @@ from rest_framework.test import APIClient
 from rest_framework import status
 
 from core.models import Category, School
-from school.serializers import CategorySerializer, SchoolSerializer
+from school.serializers import CategorySerializer
 
 
 create_school_url = reverse('school:create')
@@ -186,27 +186,30 @@ class TestPrivateSchoolApi(TestCase):
                     displayname="Pre School"
                 )
 
-        user1 = get_user_model().objects.create(
-            username="testuser0b",
-            email="testuser02b@bondeveloper.coom",
+        user1 = get_user_model().objects.create_user(
+            username="testuser0bc",
+            email="testuser02cb@bondeveloper.coom",
             password="Qwerty!@#",
+            first_name="Test F",
+            last_name="Test L"
         )
 
-        School.objects.create(
+        school = School.objects.create(
             basename="bbg",
             name="Beitbridge Gvt",
             category=cat,
         ).users.add(user1)
 
-        school = School.objects.all()[0]
+        school = self.client.get(list_school_url).data[0]
         school.name = "BB Gov"
-        serializer = SchoolSerializer(school).data
-        # print(school)
+        school.get('users')[0].pop("email")
 
-        res = self.client.put(reverse('school:update',
-                                args=[school.id]
-                                ),
-                              serializer, format='json')
-        # print(res.data)
+        res = self.client.patch(
+                                reverse('school:update',
+                                        args=[school.get('id')]
+                                        ),
+                                school, format='json'
+                              )
+
         self.assertEquals(res.status_code, status.HTTP_200_OK)
         self.assertEquals(str(res.data.get("name")), "Beitbridge Gvt")

@@ -26,6 +26,17 @@ class SchoolSerializer(serializers.ModelSerializer):
         fields = ('id', 'basename', 'name', 'category', 'users')
         read_only_fields = ('id',)
         ordering = ('basename',)
+        extra_kwargs = {'users': {'write_only': True}}
+
+    def create_or_update_users(self, users):
+        user_ids = []
+        for user in users:
+            user_instance, created = get_user_model().objects.update_or_create(
+                    pk=user.get('id'),
+                    defaults=user
+                    )
+            user_ids.append(user_instance.pk)
+        return user_ids
 
     def create(self, validated_data):
 
@@ -47,7 +58,7 @@ class SchoolSerializer(serializers.ModelSerializer):
         school.users.add(user)
         return school
 
-
     def update(self, instance, validated_data):
+
         validated_data.pop('users')
         return super().update(instance, validated_data)

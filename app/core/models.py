@@ -52,4 +52,13 @@ class School(models.Model):
     name = models.CharField(max_length=255)
     category = models.ForeignKey(Category, on_delete=models.DO_NOTHING,
                                  blank=True, null=True)
-    users = models.ManyToManyField(get_user_model())
+    users = models.ManyToManyField(get_user_model(), through='Profile')
+
+
+class Profile(models.Model):
+    user = models.ForeignKey(get_user_model(),  on_delete=models.CASCADE)
+    school = models.ForeignKey(School, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = (('user', 'school'),)
