@@ -42,17 +42,13 @@ class ListSchoolView(generics.ListAPIView):
 class UpdateSchoolView(generics.UpdateAPIView):
     queryset = School.objects.all()
     serializer_class = SchoolSerializer
-    permission_classes = (AllowAny,)
-
-# #
-# class RetrieveSchoolView(generics.RetrieveAPIView):
-#     # queryset = School.objects.all()
-#     serializer_class = SchoolSerializer
-#     permission_classes = (AllowAny,)
-#
 
 
-# class CreateSchoolUserView(generics.CreateAPIView):
-#     queryset = School.objects.all()
-#     serializer_class = SchoolSerializer
-#     permission_classes = (AllowAny,)
+class DeleteSchoolView(generics.DestroyAPIView):
+    queryset = School.objects.all()
+    serializer_class = SchoolSerializer
+
+
+class RetrieveSchoolAPIView(generics.RetrieveAPIView):
+    queryset = School.objects.all()
+    serializer_class = SchoolSerializer

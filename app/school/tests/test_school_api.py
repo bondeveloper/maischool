@@ -12,7 +12,7 @@ from school.serializers import CategorySerializer
 create_school_url = reverse('school:create')
 list_school_url = reverse('school:list')
 
-reg_url = '/api/accounts/auth/registration/'
+reg_url = '/api/v1/accounts/auth/registration/'
 
 
 def sample_category(basename="pre-school", displayname="Pre School"):
@@ -28,6 +28,27 @@ def sample_user():
         email="testuser@bondeveloper.coom",
         password="Qwerty!@#",
     )
+
+
+def sample_school():
+    cat = Category.objects.create(
+                basename="pre-school",
+                displayname="Pre School"
+            )
+
+    user1 = get_user_model().objects.create_user(
+        username="testuser0bc",
+        email="testuser02cb@bondeveloper.coom",
+        password="Qwerty!@#",
+        first_name="Test F",
+        last_name="Test L"
+    )
+
+    School.objects.create(
+        basename="bbg",
+        name="Beitbridge Gvt",
+        category=cat,
+    ).users.add(user1)
 
 
 class TestPublicSchoolApi(TestCase):
@@ -213,3 +234,34 @@ class TestPrivateSchoolApi(TestCase):
 
         self.assertEquals(res.status_code, status.HTTP_200_OK)
         self.assertEquals(str(res.data.get("name")), "Beitbridge Gvt")
+
+    def test_school_delete_successful(self):
+        sample_school()
+
+        school_res = self.client.get(list_school_url)
+        self.assertEquals(school_res.status_code, status.HTTP_200_OK)
+        self.assertEquals(len(school_res.data), 1)
+
+        res = self.client.delete(reverse('school:delete',
+                                         args=[school_res.data[0].get('id')]
+                                         )
+                                 )
+        self.assertEquals(res.status_code, status.HTTP_204_NO_CONTENT)
+
+        school_res = self.client.get(list_school_url)
+        self.assertEquals(school_res.status_code, status.HTTP_200_OK)
+        self.assertEquals(len(school_res.data), 0)
+
+    def test_retrieve_school_successful(self):
+        sample_school()
+
+        school_res = self.client.get(list_school_url)
+        self.assertEquals(school_res.status_code, status.HTTP_200_OK)
+        self.assertEquals(len(school_res.data), 1)
+
+        res = self.client.get(reverse('school:retrieve',
+                                      args=[school_res.data[0].get('id')]
+                                      )
+                              )
+        self.assertEquals(res.status_code, status.HTTP_200_OK)
+        self.assertEquals(res.data.get("basename"), "bbg")

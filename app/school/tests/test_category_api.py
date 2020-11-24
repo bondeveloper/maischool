@@ -14,8 +14,8 @@ category_payload = {"basename": "primary-school",
                     "displayname": "Primary School"}
 
 # if anyones knows how to reverse this path, feel free to make edits
-reg_url = '/api/accounts/auth/registration/'
-login_url = '/api/accounts/auth/login/'
+reg_url = '/api/v1/accounts/auth/registration/'
+login_url = '/api/v1/accounts/auth/login/'
 
 
 def sample_category(basename="primary-school", displayname="Primary School"):

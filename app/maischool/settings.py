@@ -47,12 +47,14 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
-
+    #
     'rest_framework',
     'rest_framework.authtoken',
-
+    #
     'dj_rest_auth',
     'dj_rest_auth.registration',
+    #
+    'invitations',
 ]
 
 REST_FRAMEWORK = {
@@ -157,3 +159,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 ACCOUNT_EMAIL_REQUIRED=True
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 REST_USE_JWT = True
+
+
+REST_AUTH_REGISTER_SERIALIZERS  = {
+    'REGISTER_SERIALIZER':  'account.serializers.RegisterSerializer',
+}

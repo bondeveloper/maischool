@@ -35,9 +35,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=True)
     is_active = models.BooleanField(default=True)
 
+    # schools = models.ManyToManyField('School', through='Profile')
+
     objects = UserManager()
 
-    USERNAME_FIELD = 'email'
+    USERNAME_FIELD = EMAIL_FIELD = 'email'
 
 
 class Category(models.Model):

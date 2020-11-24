@@ -8,9 +8,9 @@ from rest_framework import status
 class TestAuthApi(TestCase):
 
     # if anyones knows how to reverse this path, feel free to make edits
-    reg_url = '/api/accounts/auth/registration/'
-    login_url = '/api/accounts/auth/login/'
-    token_url = '/api/accounts/auth/token/'
+    reg_url = '/api/v1/accounts/auth/registration/'
+    login_url = '/api/v1/accounts/auth/login/'
+    token_url = '/api/v1/accounts/auth/token/'
 
     def setUp(self):
         self.client = APIClient()

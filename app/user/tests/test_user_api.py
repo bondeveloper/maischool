@@ -17,14 +17,3 @@ class TestPrivateUserApi(TestCase):
 
         res = self.client.get(LIST_USER_URL)
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
-
-    # def test_user_registration_successful(self):
-
-        # payload = {
-        #     "email": "testb@gmail.com",
-        #     "username": "test B",
-        #     "password1": "123123",
-        #     "password2": "123123"
-        # }
-        #
-        # res = self.client.post(adsd, payload)
