@@ -1,8 +1,9 @@
 from rest_framework import generics
 from rest_framework.permissions import AllowAny
 
-from school.serializers import CategorySerializer, SchoolSerializer
-from core.models import Category, School
+from school.serializers import CategorySerializer, SchoolSerializer, \
+                                SubjectSerializer
+from core.models import Category, School, Subject
 
 
 class CreateCategoryView(generics.CreateAPIView):
@@ -52,3 +53,8 @@ class DeleteSchoolView(generics.DestroyAPIView):
 class RetrieveSchoolAPIView(generics.RetrieveAPIView):
     queryset = School.objects.all()
     serializer_class = SchoolSerializer
+
+
+class CreateSubjectAPIView(generics.CreateAPIView):
+    queryset = Subject.objects.all()
+    serializer_class = SubjectSerializer

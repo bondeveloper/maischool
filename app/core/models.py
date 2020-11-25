@@ -64,3 +64,9 @@ class Profile(models.Model):
 
     class Meta:
         unique_together = (('user', 'school'),)
+
+
+class Subject(models.Model):
+    basename = models.CharField(unique=True, max_length=255)
+    name = models.CharField(unique=True, max_length=255)
+    school = models.ForeignKey(School, on_delete=models.CASCADE)

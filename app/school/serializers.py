@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from django.contrib.auth import get_user_model
 
-from core.models import Category, School
+from core.models import Category, School, Subject
 from user.serializers import UserSerializer
 
 
@@ -62,3 +62,12 @@ class SchoolSerializer(serializers.ModelSerializer):
 
         validated_data.pop('users')
         return super().update(instance, validated_data)
+
+
+class SubjectSerializer(serializers.ModelSerializer):
+    school = serializers.PrimaryKeyRelatedField(read_only=True)
+
+    class Meta:
+        model = Subject
+        fields = ('id', 'basename', 'name', 'school')
+        read_only_fields = ('id',)
