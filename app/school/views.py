@@ -6,7 +6,7 @@ from school.serializers import CategorySerializer, SchoolSerializer, \
 from core.models import Category, School, Subject
 
 
-class CreateCategoryView(generics.CreateAPIView):
+class CategoryCreateAPIView(generics.CreateAPIView):
     serializer_class = CategorySerializer
 
 
@@ -15,7 +15,7 @@ class UpdateCategoryView(generics.UpdateAPIView):
     serializer_class = CategorySerializer
 
 
-class ListCategoryView(generics.ListAPIView):
+class CategoryListAPIView(generics.ListAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
@@ -30,12 +30,12 @@ class ViewCategoryView(generics.RetrieveAPIView):
     serializer_class = CategorySerializer
 
 
-class CreateSchoolView(generics.CreateAPIView):
+class SchoolCreateAPIView(generics.CreateAPIView):
     serializer_class = SchoolSerializer
     permission_classes = (AllowAny,)
 
 
-class ListSchoolView(generics.ListAPIView):
+class SchoolListAPIView(generics.ListAPIView):
     queryset = School.objects.all()
     serializer_class = SchoolSerializer
 
@@ -55,6 +55,10 @@ class RetrieveSchoolAPIView(generics.RetrieveAPIView):
     serializer_class = SchoolSerializer
 
 
-class CreateSubjectAPIView(generics.CreateAPIView):
-    queryset = Subject.objects.all()
+class SubjectCreateAPIView(generics.CreateAPIView):
+    serializer_class = SubjectSerializer
+
+
+class SubjectListAPIView(generics.ListAPIView):
+    queryset = School.objects.all()
     serializer_class = SubjectSerializer
