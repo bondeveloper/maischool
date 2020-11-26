@@ -10,7 +10,7 @@ class CategoryCreateAPIView(generics.CreateAPIView):
     serializer_class = CategorySerializer
 
 
-class UpdateCategoryView(generics.UpdateAPIView):
+class CategoryUpdateAPIView(generics.UpdateAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
@@ -20,12 +20,12 @@ class CategoryListAPIView(generics.ListAPIView):
     serializer_class = CategorySerializer
 
 
-class DestroyCategoryView(generics.DestroyAPIView):
+class CategoryDestroyAPIView(generics.DestroyAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
 
-class ViewCategoryView(generics.RetrieveAPIView):
+class CategoryRetrieveAPIView(generics.RetrieveAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
@@ -40,17 +40,17 @@ class SchoolListAPIView(generics.ListAPIView):
     serializer_class = SchoolSerializer
 
 
-class UpdateSchoolView(generics.UpdateAPIView):
+class SchoolUpdateAPIView(generics.UpdateAPIView):
     queryset = School.objects.all()
     serializer_class = SchoolSerializer
 
 
-class DeleteSchoolView(generics.DestroyAPIView):
+class SchoolDeleteAPIView(generics.DestroyAPIView):
     queryset = School.objects.all()
     serializer_class = SchoolSerializer
 
 
-class RetrieveSchoolAPIView(generics.RetrieveAPIView):
+class SchoolRetrieveAPIView(generics.RetrieveAPIView):
     queryset = School.objects.all()
     serializer_class = SchoolSerializer
 
@@ -60,5 +60,20 @@ class SubjectCreateAPIView(generics.CreateAPIView):
 
 
 class SubjectListAPIView(generics.ListAPIView):
-    queryset = School.objects.all()
+    queryset = Subject.objects.all()
+    serializer_class = SubjectSerializer
+
+
+class SubjectRetrieveAPIView(generics.RetrieveAPIView):
+    queryset = Subject.objects.all()
+    serializer_class = SubjectSerializer
+
+
+class SubjectUpdateAPIView(generics.UpdateAPIView):
+    queryset = Subject.objects.all()
+    serializer_class = SubjectSerializer
+
+
+class SubjectDestroyAPIView(generics.DestroyAPIView):
+    queryset = Subject.objects.all()
     serializer_class = SubjectSerializer

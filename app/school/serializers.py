@@ -65,7 +65,6 @@ class SchoolSerializer(serializers.ModelSerializer):
 
 
 class SubjectSerializer(serializers.ModelSerializer):
-    school = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Subject
