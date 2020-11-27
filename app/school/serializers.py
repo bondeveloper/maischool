@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from django.contrib.auth import get_user_model
 
-from core.models import Category, School, Subject
+from core.models import Category, School, Subject, Level
 from user.serializers import UserSerializer
 
 
@@ -10,7 +10,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ('id', 'basename', 'displayname')
+        fields = ('id', 'basename', 'name')
         read_only_fields = ('id',)
 
     def update(self, instance, validated_data):
@@ -68,5 +68,12 @@ class SubjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Subject
+        fields = ('id', 'basename', 'name', 'school')
+        read_only_fields = ('id',)
+
+
+class LevelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Level
         fields = ('id', 'basename', 'name', 'school')
         read_only_fields = ('id',)

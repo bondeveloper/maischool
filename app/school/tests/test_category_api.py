@@ -11,17 +11,17 @@ from school.serializers import CategorySerializer
 category_create_url = reverse('school:category-create')
 category_list_url = reverse('school:category-list')
 category_payload = {"basename": "primary-school",
-                    "displayname": "Primary School"}
+                    "name": "Primary School"}
 
 # if anyones knows how to reverse this path, feel free to make edits
 reg_url = '/api/v1/accounts/auth/registration/'
 login_url = '/api/v1/accounts/auth/login/'
 
 
-def sample_category(basename="primary-school", displayname="Primary School"):
+def sample_category(basename="primary-school", name="Primary School"):
     return Category.objects.create(
         basename=basename,
-        displayname=displayname
+        name=name
     )
 
 
@@ -64,7 +64,7 @@ class PrivateCategoryTestApi(TestCase):
 
     def test_category_basename_required(self):
         payload = {"basename": '',
-                   "displayname": "Primary School"}
+                   "name": "Primary School"}
 
         res = self.client.post(category_create_url, payload)
 
@@ -76,7 +76,7 @@ class PrivateCategoryTestApi(TestCase):
     def test_category_basename_unique(self):
         Category.objects.create(
             basename=category_payload.get('basename'),
-            displayname=category_payload.get('displayname'),
+            name=category_payload.get('name'),
         )
 
         res = self.client.post(category_create_url, category_payload,
@@ -89,13 +89,13 @@ class PrivateCategoryTestApi(TestCase):
 
     def test_category_displayname_required(self):
         payload = {"basename": 'primary-school',
-                   "displayname": ""}
+                   "name": ""}
 
         res = self.client.post(category_create_url, payload)
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('displayname', res.data.keys())
-        self.assertEquals(str(res.data.get('displayname')[0]),
+        self.assertIn('name', res.data.keys())
+        self.assertEquals(str(res.data.get('name')[0]),
                           'This field may not be blank.')
 
     def test_update_category_basename_not_allowed(self):
@@ -113,7 +113,7 @@ class PrivateCategoryTestApi(TestCase):
 
     def test_update_displayname_successful(self):
         saved = sample_category()
-        saved.displayname = "test-update display"
+        saved.name = "test-update display"
         sanitizer = CategorySerializer(saved)
 
         res = self.client.put(reverse('school:category-update',
@@ -122,17 +122,17 @@ class PrivateCategoryTestApi(TestCase):
 
         self.assertEquals(res.status_code, status.HTTP_200_OK)
         self.assertEquals(res.data, sanitizer.data)
-        self.assertEquals(res.data.get('displayname'), "test-update display")
+        self.assertEquals(res.data.get('name'), "test-update display")
 
     def test_list_categories(self):
         sample_category()
         Category.objects.create(
             basename="college",
-            displayname="College"
+            name="College"
         )
         Category.objects.create(
             basename="university",
-            displayname="University"
+            name="University"
         )
 
         res = self.client.get(category_list_url)
@@ -146,7 +146,7 @@ class PrivateCategoryTestApi(TestCase):
 
         Category.objects.create(
             basename="college",
-            displayname="College"
+            name="College"
         )
 
         res = self.client.delete(reverse('school:category-delete',

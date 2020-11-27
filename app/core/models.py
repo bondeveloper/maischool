@@ -45,7 +45,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 class Category(models.Model):
 
     basename = models.CharField(unique=True, max_length=255)
-    displayname = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)
 
 
 class School(models.Model):
@@ -70,3 +70,14 @@ class Subject(models.Model):
     basename = models.CharField(unique=True, max_length=255)
     name = models.CharField(unique=True, max_length=255)
     school = models.ForeignKey(School, on_delete=models.CASCADE)
+
+
+class Level(models.Model):
+    basename = models.CharField(unique=True, max_length=255)
+    name = models.CharField(max_length=255)
+    school = models.ForeignKey(School, on_delete=models.DO_NOTHING,
+                               blank=True, null=True
+                               )
+# class Lesson(models.Model):
+#     subject = models.ForeignKey(Subject, on_delete=models.DO_NOTHING)
+#     level =

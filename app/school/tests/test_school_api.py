@@ -15,10 +15,10 @@ list_school_url = reverse('school:list')
 reg_url = '/api/v1/accounts/auth/registration/'
 
 
-def sample_category(basename="pre-school", displayname="Pre School"):
+def sample_category(basename="pre-school", name="Pre School"):
     return Category.objects.create(
         basename=basename,
-        displayname=displayname
+        name=name
     )
 
 
@@ -33,7 +33,7 @@ def sample_user():
 def sample_school():
     cat = Category.objects.create(
                 basename="pre-school",
-                displayname="Pre School"
+                name="Pre School"
             )
 
     user1 = get_user_model().objects.create_user(
@@ -59,7 +59,7 @@ class TestPublicSchoolApi(TestCase):
     def test_school_create_successful(self):
         cat = Category.objects.create(
                     basename="pre-school",
-                    displayname="Pre School"
+                    name="Pre School"
                 )
 
         payload = {
@@ -83,7 +83,7 @@ class TestPublicSchoolApi(TestCase):
     def test_add_admin_user_to_school(self):
         cat = Category.objects.create(
                     basename="pre-school",
-                    displayname="Pre School"
+                    name="Pre School"
                 )
 
         payload = {
@@ -100,7 +100,7 @@ class TestPublicSchoolApi(TestCase):
 
         cat = Category.objects.create(
                     basename="pre-school",
-                    displayname="Pre School"
+                    name="Pre School"
                 )
 
         payload = {
@@ -124,7 +124,7 @@ class TestPublicSchoolApi(TestCase):
 
         cat = Category.objects.create(
                     basename="pre-school",
-                    displayname="Pre School"
+                    name="Pre School"
                 )
 
         payload = {
@@ -170,7 +170,7 @@ class TestPrivateSchoolApi(TestCase):
     def test_list_schools(self):
         cat = Category.objects.create(
                     basename="pre-school",
-                    displayname="Pre School"
+                    name="Pre School"
                 )
 
         user1 = get_user_model().objects.create(
@@ -204,7 +204,7 @@ class TestPrivateSchoolApi(TestCase):
     def test_update_school(self):
         cat = Category.objects.create(
                     basename="pre-school",
-                    displayname="Pre School"
+                    name="Pre School"
                 )
 
         user1 = get_user_model().objects.create_user(
@@ -259,7 +259,7 @@ class TestPrivateSchoolApi(TestCase):
         self.assertEquals(school_res.status_code, status.HTTP_200_OK)
         self.assertEquals(len(school_res.data), 1)
 
-        res = self.client.get(reverse('school:retrieve',
+        res = self.client.get(reverse('school:view',
                                       args=[school_res.data[0].get('id')]
                                       )
                               )

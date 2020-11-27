@@ -24,10 +24,10 @@ def sample_school(basename="test-school", name="test school"):
     )
 
 
-def sample_category(basename="primary-school", displayname="Primary School"):
+def sample_category(basename="primary-school", name="Primary School"):
     return Category.objects.create(
         basename=basename,
-        displayname=displayname
+        name=name
      )
 
 
@@ -74,7 +74,7 @@ class SubjectPrivateApi(TestCase):
 
         category01 = Category.objects.create(
             basename="high-school",
-            displayname="High School"
+            name="High School"
         )
 
         school = School.objects.create(
@@ -96,11 +96,11 @@ class SubjectPrivateApi(TestCase):
     def test_list_subjects_api(self):
         category01 = Category.objects.create(
             basename="high-school1",
-            displayname="High School1"
+            name="High School1"
         )
         category02 = Category.objects.create(
             basename="college1",
-            displayname="College1"
+            name="College1"
         )
 
         s1 = School.objects.create(
@@ -139,10 +139,6 @@ class SubjectPrivateApi(TestCase):
         subject.name = update_name
         ser = SubjectSerializer(subject)
 
-        # res = self.client.patch(reverse('school:subject-update',
-        #                               args=[ser.data.get('id')]
-        #                               )
-        #                        ), ser.data, format='json')
         res = self.client.patch(
                                reverse('school:subject-update',
                                        args=[ser.data.get('id')]

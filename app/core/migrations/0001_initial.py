@@ -39,7 +39,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('basename', models.CharField(max_length=255, unique=True)),
-                ('displayname', models.CharField(max_length=255)),
+                ('name', models.CharField(max_length=255)),
             ],
         ),
         migrations.CreateModel(
