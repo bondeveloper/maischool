@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from django.contrib.auth import get_user_model
 
-from core.models import Category, School, Subject, Level
+from core.models import Category, School, Subject, Level, Lesson
 from user.serializers import UserSerializer
 
 
@@ -76,4 +76,11 @@ class LevelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Level
         fields = ('id', 'basename', 'name', 'school')
+        read_only_fields = ('id',)
+
+
+class LessonSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Lesson
+        fields = ('id', 'subject', 'level', 'instructor', 'learners', 'name')
         read_only_fields = ('id',)

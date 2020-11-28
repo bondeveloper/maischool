@@ -2,9 +2,10 @@ from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.db.utils import IntegrityError
 
-from core.models import Category, School, Subject, Level
+from core.models import Category, School, Subject, Level, Lesson
 from school.serializers import CategorySerializer, SchoolSerializer, \
-                               SubjectSerializer, LevelSerializer
+                               SubjectSerializer, LevelSerializer, \
+                               LessonSerializer
 from user.serializers import UserSerializer
 
 
@@ -49,7 +50,7 @@ def sample_level():
 
 class TestCategoryModel(TestCase):
 
-    def test_create_category(self):
+    def test_category_create(self):
         saved = sample_category()
         saved = CategorySerializer(saved).data
 
@@ -60,7 +61,7 @@ class TestCategoryModel(TestCase):
         self.assertEquals(category.get('basename'), "primary-school")
         self.assertEquals(category.get('name'), "Primary School")
 
-    def test_update_category_displayname(self):
+    def test_category_update_displayname(self):
         saved = sample_category()
 
         saved.basename = "primary-sch"
@@ -73,7 +74,7 @@ class TestCategoryModel(TestCase):
         self.assertEquals(updated, saved)
         self.assertEquals(updated.get('basename'), "primary-sch")
 
-    def test_list_categories(self):
+    def test_categories_list(self):
         sample_category()
         Category.objects.create(
             basename="pre-school",
@@ -85,7 +86,7 @@ class TestCategoryModel(TestCase):
 
         self.assertEquals(len(categories), 2)
 
-    def test_remove_category(self):
+    def test_category_delete(self):
         sample_category()
         Category.objects.create(
             basename="pre-school",
@@ -106,7 +107,7 @@ class TestCategoryModel(TestCase):
 
 class TestSchoolModel(TestCase):
 
-    def test_create_school(self):
+    def test_school_create_successful(self):
         saved = sample_school()
         saved.users.add(sample_user())
         saved.save()
@@ -117,7 +118,7 @@ class TestSchoolModel(TestCase):
 
         self.assertEquals(serializer.data,  saved.data)
 
-    def test_update_school_name(self):
+    def test_school_update_name(self):
         saved = sample_school()
         saved.users.add(sample_user())
         saved.name = "Updated name"
@@ -164,7 +165,7 @@ class TestSchoolModel(TestCase):
         serializer = SchoolSerializer(list, many=True)
         self.assertTrue(len(serializer.data), 3)
 
-    def test_school_delete_school(self):
+    def test_school_delete_successful(self):
         sample_school().users.add(sample_user())
         category01 = Category.objects.create(
             basename="high-school",
@@ -292,13 +293,13 @@ class TestSubjectModel(TestCase):
 
 
 class TestLevelModel(TestCase):
-    def test_create_level_succesful(self):
+    def test_level_create_succesful(self):
 
         ser = LevelSerializer(sample_level())
         self.assertIn('id', ser.data.keys())
         self.assertIsNotNone(ser.data.get("id"))
 
-    def test_level_basename_unique(self):
+    def test_basename_level_unique(self):
         sample_level()
 
         cat = Category.objects.create(
@@ -332,7 +333,7 @@ class TestLevelModel(TestCase):
         self.assertEquals(ser.data.get("basename"), 'updated-basename')
         self.assertEquals(ser.data.get("name"), 'Updated Name')
 
-    def test_list_levels(self):
+    def test_levels_list(self):
         sample_level()
 
         cat = Category.objects.create(
@@ -355,7 +356,7 @@ class TestLevelModel(TestCase):
         all = Level.objects.all()
         self.assertEquals(len(all), 2)
 
-    def test_delete_level(self):
+    def test_level_delete(self):
 
         cat = Category.objects.create(
             basename="cat-basename",
@@ -398,26 +399,246 @@ class TestLevelModel(TestCase):
         all = Level.objects.all()
         self.assertEquals(len(all), 1)
 
-# class TestLessonModel(TestCase):
-#     def test_create_lesson_succesful(self):
-#
-#         user1 = get_user_model().objects.create(
-#             username="testuser02",
-#             email="testuser02@bondeveloper.coom",
-#             password="Qwerty!@#",
-#         )
-#         user2 = get_user_model().objects.create(
-#             username="testuser03",
-#             email="testuser03@bondeveloper.coom",
-#             password="Qwerty!@#",
-#         )
-#
-#         res = Lesson.objects.create(
-#             subject=SubjectSerializer(sample_subject()),
-#             level="grade-12",
-#             learners=[user1],
-#             instructor=user2
-#         )
-#         ser = LessonSerializer(res)
-#         self.assertIn('id', ser.data.keys())
-#         self.assertIsNotNone(ser.data.get("id"))
+
+class TestLessonModel(TestCase):
+    def test_lesson_create_succesful(self):
+
+        learner = get_user_model().objects.create(
+            username="learner01",
+            email="learner@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+        learner2 = get_user_model().objects.create(
+            username="learner02",
+            email="learner02@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+
+        instructor = get_user_model().objects.create(
+            username="instructor",
+            email="instructor@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+
+        cat = Category.objects.create(
+            basename="sample1",
+            name="Sample Category"
+        )
+
+        sch = School.objects.create(
+            basename="gruut-high",
+            name="Gruut High",
+            category=cat,
+        )
+
+        sub = Subject.objects.create(
+            basename="spanish-fal",
+            name="Spanish FAL",
+            school=sch
+        )
+
+        level = Level.objects.create(
+            basename="grade-9",
+            name="Grade 9",
+            school=sch
+        )
+
+        les = Lesson.objects.create(
+            subject=sub,
+            level=level,
+            instructor=instructor,
+            name="Python 101"
+        )
+        les.learners.add(learner, learner2)
+
+        ser = LessonSerializer(les)
+        self.assertIn('id', ser.data.keys())
+        self.assertIsNotNone(ser.data.get("id"))
+
+    def test_lesson_update_succesful(self):
+
+        learner = get_user_model().objects.create(
+            username="learner01",
+            email="learner@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+        learner2 = get_user_model().objects.create(
+            username="learner02",
+            email="learner02@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+
+        instructor = get_user_model().objects.create(
+            username="instructor",
+            email="instructor@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+
+        cat = Category.objects.create(
+            basename="sample1",
+            name="Sample Category"
+        )
+
+        sch = School.objects.create(
+            basename="gruut-high",
+            name="Gruut High",
+            category=cat,
+        )
+
+        sub = Subject.objects.create(
+            basename="spanish-fal",
+            name="Spanish FAL",
+            school=sch
+        )
+
+        level = Level.objects.create(
+            basename="grade-9",
+            name="Grade 9",
+            school=sch
+        )
+
+        les = Lesson.objects.create(
+            subject=sub,
+            level=level,
+            instructor=instructor,
+            name="Python 101"
+        )
+        les.learners.add(learner, learner2)
+
+        Lesson.objects.filter(pk=les.id).update(
+            name="Python 3"
+        )
+
+        les.refresh_from_db()
+
+        ser = LessonSerializer(les)
+        self.assertEquals(ser.data.get("name"), "Python 3")
+
+    def test_lessons_list(self):
+
+        learner = get_user_model().objects.create(
+            username="learner01",
+            email="learner@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+        learner2 = get_user_model().objects.create(
+            username="learner02",
+            email="learner02@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+
+        instructor = get_user_model().objects.create(
+            username="instructor",
+            email="instructor@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+
+        cat = Category.objects.create(
+            basename="sample1",
+            name="Sample Category"
+        )
+
+        sch = School.objects.create(
+            basename="gruut-high",
+            name="Gruut High",
+            category=cat,
+        )
+
+        sub = Subject.objects.create(
+            basename="spanish-fal",
+            name="Spanish FAL",
+            school=sch
+        )
+
+        level = Level.objects.create(
+            basename="grade-9",
+            name="Grade 9",
+            school=sch
+        )
+
+        les = Lesson.objects.create(
+            subject=sub,
+            level=level,
+            instructor=instructor,
+            name="Python 101"
+        )
+        les.learners.add(learner, learner2)
+
+        les2 = Lesson.objects.create(
+            subject=sub,
+            level=level,
+            instructor=instructor,
+            name="Python Advanced"
+        )
+        les2.learners.add(learner, learner2)
+
+        res = Lesson.objects.all()
+        ser = LessonSerializer(res, many=True)
+        self.assertEquals(len(ser.data), 2)
+
+    def test_lesson_delete(self):
+
+        learner = get_user_model().objects.create(
+            username="learner01",
+            email="learner@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+        learner2 = get_user_model().objects.create(
+            username="learner02",
+            email="learner02@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+
+        instructor = get_user_model().objects.create(
+            username="instructor",
+            email="instructor@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+
+        cat = Category.objects.create(
+            basename="sample1",
+            name="Sample Category"
+        )
+
+        sch = School.objects.create(
+            basename="gruut-high",
+            name="Gruut High",
+            category=cat,
+        )
+
+        sub = Subject.objects.create(
+            basename="spanish-fal",
+            name="Spanish FAL",
+            school=sch
+        )
+
+        level = Level.objects.create(
+            basename="grade-9",
+            name="Grade 9",
+            school=sch
+        )
+
+        les = Lesson.objects.create(
+            subject=sub,
+            level=level,
+            instructor=instructor,
+            name="Python 101"
+        )
+        les.learners.add(learner, learner2)
+
+        les2 = Lesson.objects.create(
+            subject=sub,
+            level=level,
+            instructor=instructor,
+            name="Python Advanced"
+        )
+        les2.learners.add(learner, learner2)
+
+        res = Lesson.objects.all()
+        ser = LessonSerializer(res, many=True)
+        self.assertEquals(len(ser.data), 2)
+
+        Lesson.objects.filter(pk=les.id).delete()
+        res = Lesson.objects.all()
+        ser = LessonSerializer(res, many=True)
+        self.assertEquals(len(ser.data), 1)

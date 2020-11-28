@@ -53,7 +53,8 @@ class School(models.Model):
     basename = models.CharField(unique=True, max_length=255)
     name = models.CharField(max_length=255)
     category = models.ForeignKey(Category, on_delete=models.DO_NOTHING,
-                                 blank=True, null=True)
+                                 blank=True, null=True
+                                 )
     users = models.ManyToManyField(get_user_model(), through='Profile')
 
 
@@ -78,6 +79,15 @@ class Level(models.Model):
     school = models.ForeignKey(School, on_delete=models.DO_NOTHING,
                                blank=True, null=True
                                )
-# class Lesson(models.Model):
-#     subject = models.ForeignKey(Subject, on_delete=models.DO_NOTHING)
-#     level =
+
+
+class Lesson(models.Model):
+    subject = models.ForeignKey(Subject, on_delete=models.DO_NOTHING)
+    level = models.ForeignKey(Level, on_delete=models.DO_NOTHING)
+    instructor = models.ForeignKey(get_user_model(),
+                                   related_name="instructor",
+                                   on_delete=models.DO_NOTHING
+                                   )
+    learners = models.ManyToManyField(get_user_model(), blank=True,
+                                      related_name="learners")
+    name = models.CharField(max_length=255)
