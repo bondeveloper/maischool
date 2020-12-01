@@ -21,14 +21,12 @@ RUN mkdir /app
 COPY ./app /app
 WORKDIR /app
 
-# RUN adduser -D bondeveloper
+RUN addgroup -g 1001 www-data
+RUN adduser -D -u 1001 -G www-data bondeveloper
 
-#RUN addgroup -g 1001 www-data
-#RUN adduser -D -u 1001 -G www-data bondeveloper
+COPY --chown=bondeveloper:www-data . /app
 
-#COPY --chown=bondeveloper:www-data . /app
-
-#USER bondeveloper
-
-RUN adduser -D bondeveloper
 USER bondeveloper
+
+#RUN adduser -D bondeveloper
+#USER bondeveloper
