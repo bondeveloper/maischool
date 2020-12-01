@@ -4,6 +4,7 @@ from django.utils import timezone
 from django.contrib.auth import get_user_model
 from django.core.files import File
 from django.contrib.staticfiles import finders
+import os
 
 from rest_framework.test import APIClient
 from rest_framework import status
@@ -14,6 +15,11 @@ from school.serializers import SessionSerializer, AttachmentSerializer
 
 
 reg_url = '/api/v1/accounts/auth/registration/'
+
+
+def delete_file_from_path(path):
+    if os.path.isfile(path):
+        os.remove(path)
 
 
 class TestPrivateAttachmentApi(TestCase):
@@ -111,6 +117,10 @@ class TestPrivateAttachmentApi(TestCase):
 
             self.assertEquals(res.status_code, status.HTTP_201_CREATED)
             self.assertEquals(res.data.get('notes'), 'TCN')
+            self.assertIn('file', res.data.keys())
+            self.assertIsNotNone(res.data.get('file'))
+            file_path = res.data.get('file').split('/')
+            delete_file_from_path('/'.join(file_path[3:]))
 
     def test_attachment_update_api(self):
         learner = get_user_model().objects.create(
@@ -192,6 +202,9 @@ class TestPrivateAttachmentApi(TestCase):
             self.assertIsNotNone(res.data.get('file'))
             self.assertIn('notes', res.data.keys())
             self.assertEquals(res.data.get('notes'), 'Updated Notes')
+
+            file_path = res.data.get('file').split('/')
+            delete_file_from_path('/'.join(file_path[3:]))
 
     def test_attachment_list_api(self):
         learner = get_user_model().objects.create(
