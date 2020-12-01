@@ -2,7 +2,8 @@ from rest_framework import serializers
 
 from django.contrib.auth import get_user_model
 
-from core.models import Category, School, Subject, Level, Lesson
+from core.models import Category, School, Subject, Level, Lesson, Session, \
+                        Attachment, Moderation
 from user.serializers import UserSerializer
 
 
@@ -83,4 +84,31 @@ class LessonSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lesson
         fields = ('id', 'subject', 'level', 'instructor', 'learners', 'name')
+        read_only_fields = ('id',)
+
+
+class SessionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Session
+        fields = ('id', 'start_time', 'end_time', 'type', 'attendance',
+                  'lesson'
+                  )
+        read_only_fields = ('id',)
+
+
+class AttachmentSerializer(serializers.ModelSerializer):
+    file = serializers.FileField(max_length=None, allow_empty_file=False)
+
+    class Meta:
+        model = Attachment
+        fields = ('id', 'session', 'notes', 'file')
+        read_only_fields = ('id',)
+
+
+class ModerationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Moderation
+        fields = ('id', 'session', 'learner', 'learner_score', 'max_score',
+                  'score_type'
+                  )
         read_only_fields = ('id',)

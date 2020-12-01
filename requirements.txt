@@ -7,3 +7,4 @@ dj-rest-auth[with_social]
 django-allauth
 djangorestframework-simplejwt
 django-invitations
+whitenoise

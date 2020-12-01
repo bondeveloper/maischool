@@ -3,8 +3,10 @@ from rest_framework.permissions import AllowAny
 
 from school.serializers import CategorySerializer, SchoolSerializer, \
                                 SubjectSerializer, LevelSerializer, \
-                                LessonSerializer
-from core.models import Category, School, Subject, Level, Lesson
+                                LessonSerializer, SessionSerializer, \
+                                AttachmentSerializer, ModerationSerializer
+from core.models import Category, School, Subject, Level, Lesson, Session, \
+                       Attachment,  Moderation
 
 
 class CategoryCreateAPIView(generics.CreateAPIView):
@@ -126,3 +128,75 @@ class LessonDestroyAPIView(generics.DestroyAPIView):
 class LessonRetrieveAPIView(generics.RetrieveAPIView):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
+
+
+class SessionListAPIView(generics.ListAPIView):
+    queryset = Session.objects.all()
+    serializer_class = SessionSerializer
+
+
+class SessionCreateAPIView(generics.CreateAPIView):
+    serializer_class = SessionSerializer
+
+
+class SessionUpdateAPIView(generics.UpdateAPIView):
+    queryset = Session.objects.all()
+    serializer_class = SessionSerializer
+
+
+class SessionDestroyAPIView(generics.DestroyAPIView):
+    queryset = Session.objects.all()
+    serializer_class = SessionSerializer
+
+
+class SessionRetrieveAPIView(generics.RetrieveAPIView):
+    queryset = Session.objects.all()
+    serializer_class = SessionSerializer
+
+
+class AttachmentListAPIView(generics.ListAPIView):
+    queryset = Attachment.objects.all()
+    serializer_class = AttachmentSerializer
+
+
+class AttachmentCreateAPIView(generics.CreateAPIView):
+    serializer_class = AttachmentSerializer
+
+
+class AttachmentUpdateAPIView(generics.UpdateAPIView):
+    queryset = Attachment.objects.all()
+    serializer_class = AttachmentSerializer
+
+
+class AttachmentDestroyAPIView(generics.DestroyAPIView):
+    queryset = Attachment.objects.all()
+    serializer_class = AttachmentSerializer
+
+
+class AttachmentRetrieveAPIView(generics.RetrieveAPIView):
+    queryset = Attachment.objects.all()
+    serializer_class = AttachmentSerializer
+
+
+class ModerationListAPIView(generics.ListAPIView):
+    queryset = Moderation.objects.all()
+    serializer_class = ModerationSerializer
+
+
+class ModerationCreateAPIView(generics.CreateAPIView):
+    serializer_class = ModerationSerializer
+
+
+class ModerationUpdateAPIView(generics.UpdateAPIView):
+    queryset = Moderation.objects.all()
+    serializer_class = ModerationSerializer
+
+
+class ModerationDestroyAPIView(generics.DestroyAPIView):
+    queryset = Moderation.objects.all()
+    serializer_class = ModerationSerializer
+
+
+class ModerationRetrieveAPIView(generics.RetrieveAPIView):
+    queryset = Moderation.objects.all()
+    serializer_class = ModerationSerializer

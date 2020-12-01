@@ -1,11 +1,14 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.db.utils import IntegrityError
+from django.utils import timezone
 
-from core.models import Category, School, Subject, Level, Lesson
+from core.models import Category, School, Subject, Level, Lesson, Session, \
+                        Attachment, Moderation
 from school.serializers import CategorySerializer, SchoolSerializer, \
                                SubjectSerializer, LevelSerializer, \
-                               LessonSerializer
+                               LessonSerializer, SessionSerializer, \
+                               AttachmentSerializer, ModerationSerializer
 from user.serializers import UserSerializer
 
 
@@ -642,3 +645,1019 @@ class TestLessonModel(TestCase):
         res = Lesson.objects.all()
         ser = LessonSerializer(res, many=True)
         self.assertEquals(len(ser.data), 1)
+
+
+class TestSessionModel(TestCase):
+    def test_session_create_successful(self):
+        learner = get_user_model().objects.create(
+            username="learner01",
+            email="learner@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+        learner2 = get_user_model().objects.create(
+            username="learner02",
+            email="learner02@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+
+        instructor = get_user_model().objects.create(
+            username="instructor",
+            email="instructor@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+
+        cat = Category.objects.create(
+            basename="sample1",
+            name="Sample Category"
+        )
+
+        sch = School.objects.create(
+            basename="gruut-high",
+            name="Gruut High",
+            category=cat,
+        )
+
+        sub = Subject.objects.create(
+            basename="spanish-fal",
+            name="Spanish FAL",
+            school=sch
+        )
+
+        level = Level.objects.create(
+            basename="grade-9",
+            name="Grade 9",
+            school=sch
+        )
+
+        les = Lesson.objects.create(
+            subject=sub,
+            level=level,
+            instructor=instructor,
+            name="Python 101"
+        )
+        les.learners.add(learner, learner2)
+
+        ses = Session.objects.create(
+            start_time=timezone.now(),
+            type="TCN",
+            end_time=timezone.now(),
+            lesson=les
+        )
+        ses.attendance.add(learner, learner2)
+        ser = SessionSerializer(ses)
+        self.assertIn('id', ser.data.keys())
+        self.assertIsNotNone(ser.data.get('id'))
+
+    def test_session_update_successful(self):
+        instructor = get_user_model().objects.create(
+            username="instructor",
+            email="instructor@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+
+        cat = Category.objects.create(
+            basename="sample1",
+            name="Sample Category"
+        )
+
+        sch = School.objects.create(
+            basename="gruut-high",
+            name="Gruut High",
+            category=cat,
+        )
+
+        sub = Subject.objects.create(
+            basename="spanish-fal",
+            name="Spanish FAL",
+            school=sch
+        )
+
+        level = Level.objects.create(
+            basename="grade-9",
+            name="Grade 9",
+            school=sch
+        )
+
+        les = Lesson.objects.create(
+            subject=sub,
+            level=level,
+            instructor=instructor,
+            name="Python 101"
+        )
+
+        ses = Session.objects.create(
+            start_time=timezone.now(),
+            type="XM",
+            end_time=timezone.now(),
+            lesson=les
+        )
+        ser = SessionSerializer(ses)
+
+        start_time = timezone.now() + timezone.timedelta(days=3)
+
+        Session.objects.filter(pk=ser.data.get('id')).update(
+            start_time=start_time,
+            end_time=timezone.now() + timezone.timedelta(days=3),
+            type='PRT'
+        )
+
+        ses.refresh_from_db()
+
+        ser = SessionSerializer(ses)
+        self.assertEquals(ser.data.get('type'), 'PRT')
+
+    def test_session_list_successful(self):
+        instructor = get_user_model().objects.create(
+            username="instructor",
+            email="instructor@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+
+        cat = Category.objects.create(
+            basename="sample1",
+            name="Sample Category"
+        )
+
+        sch = School.objects.create(
+            basename="gruut-high",
+            name="Gruut High",
+            category=cat,
+        )
+
+        sub = Subject.objects.create(
+            basename="spanish-fal",
+            name="Spanish FAL",
+            school=sch
+        )
+
+        level = Level.objects.create(
+            basename="grade-9",
+            name="Grade 9",
+            school=sch
+        )
+
+        les = Lesson.objects.create(
+            subject=sub,
+            level=level,
+            instructor=instructor,
+            name="Python 101"
+        )
+
+        Session.objects.create(
+            start_time=timezone.now(),
+            type="XM",
+            end_time=timezone.now(),
+            lesson=les
+        )
+
+        Session.objects.create(
+            start_time=timezone.now(),
+            type="PRT",
+            end_time=timezone.now(),
+            lesson=les
+        )
+        ses = Session.objects.all()
+
+        ser = SessionSerializer(ses, many=True)
+        self.assertEquals(len(ser.data), 2)
+
+    def test_session_delete_successful(self):
+        instructor = get_user_model().objects.create(
+            username="instructor",
+            email="instructor@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+
+        cat = Category.objects.create(
+            basename="sample1",
+            name="Sample Category"
+        )
+
+        sch = School.objects.create(
+            basename="gruut-high",
+            name="Gruut High",
+            category=cat,
+        )
+
+        sub = Subject.objects.create(
+            basename="spanish-fal",
+            name="Spanish FAL",
+            school=sch
+        )
+
+        level = Level.objects.create(
+            basename="grade-9",
+            name="Grade 9",
+            school=sch
+        )
+
+        les = Lesson.objects.create(
+            subject=sub,
+            level=level,
+            instructor=instructor,
+            name="Python 101"
+        )
+
+        ses1 = Session.objects.create(
+            start_time=timezone.now(),
+            type="XM",
+            end_time=timezone.now(),
+            lesson=les
+        )
+
+        Session.objects.create(
+            start_time=timezone.now(),
+            type="PRT",
+            end_time=timezone.now(),
+            lesson=les
+        )
+        ses = Session.objects.all()
+
+        ser = SessionSerializer(ses, many=True)
+        self.assertEquals(len(ser.data), 2)
+
+        Session.objects.filter(pk=ses1.id).delete()
+        ses = Session.objects.all()
+
+        ser = SessionSerializer(ses, many=True)
+        self.assertEquals(len(ser.data), 1)
+
+    def test_session_retrieve_successful(self):
+        instructor = get_user_model().objects.create(
+            username="instructor",
+            email="instructor@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+
+        cat = Category.objects.create(
+            basename="sample1",
+            name="Sample Category"
+        )
+
+        sch = School.objects.create(
+            basename="gruut-high",
+            name="Gruut High",
+            category=cat,
+        )
+
+        sub = Subject.objects.create(
+            basename="spanish-fal",
+            name="Spanish FAL",
+            school=sch
+        )
+
+        level = Level.objects.create(
+            basename="grade-9",
+            name="Grade 9",
+            school=sch
+        )
+
+        les = Lesson.objects.create(
+            subject=sub,
+            level=level,
+            instructor=instructor,
+            name="Python 101"
+        )
+
+        ses1 = Session.objects.create(
+            start_time=timezone.now(),
+            type="XM",
+            end_time=timezone.now(),
+            lesson=les
+        )
+
+        Session.objects.create(
+            start_time=timezone.now(),
+            type="PRT",
+            end_time=timezone.now(),
+            lesson=les
+        )
+        ses = Session.objects.get(pk=ses1.id)
+
+        ser = SessionSerializer(ses)
+        self.assertEquals(ser.data.get('type'), 'XM')
+
+
+class TestAttachmentModel(TestCase):
+    def test_attachment_create_successful(self):
+        learner = get_user_model().objects.create(
+            username="learner01",
+            email="learner@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+        learner2 = get_user_model().objects.create(
+            username="learner02",
+            email="learner02@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+
+        instructor = get_user_model().objects.create(
+            username="instructor",
+            email="instructor@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+
+        cat = Category.objects.create(
+            basename="sample1",
+            name="Sample Category"
+        )
+
+        sch = School.objects.create(
+            basename="gruut-high",
+            name="Gruut High",
+            category=cat,
+        )
+
+        sub = Subject.objects.create(
+            basename="spanish-fal",
+            name="Spanish FAL",
+            school=sch
+        )
+
+        level = Level.objects.create(
+            basename="grade-9",
+            name="Grade 9",
+            school=sch
+        )
+
+        les = Lesson.objects.create(
+            subject=sub,
+            level=level,
+            instructor=instructor,
+            name="Python 101"
+        )
+        les.learners.add(learner, learner2)
+
+        ses = Session.objects.create(
+            start_time=timezone.now(),
+            type="TCN",
+            end_time=timezone.now(),
+            lesson=les
+        )
+
+        att = Attachment.objects.create(
+            session=ses,
+            notes="Test note",
+            file="attachment.pdf"
+        )
+
+        ser = AttachmentSerializer(att)
+        self.assertIn('id', ser.data.keys())
+        self.assertIsNotNone(ser.data.get('id'))
+
+    def test_attachment_update_successful(self):
+        learner = get_user_model().objects.create(
+            username="learner01",
+            email="learner@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+        learner2 = get_user_model().objects.create(
+            username="learner02",
+            email="learner02@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+
+        instructor = get_user_model().objects.create(
+            username="instructor",
+            email="instructor@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+
+        cat = Category.objects.create(
+            basename="sample1",
+            name="Sample Category"
+        )
+
+        sch = School.objects.create(
+            basename="gruut-high",
+            name="Gruut High",
+            category=cat,
+        )
+
+        sub = Subject.objects.create(
+            basename="spanish-fal",
+            name="Spanish FAL",
+            school=sch
+        )
+
+        level = Level.objects.create(
+            basename="grade-9",
+            name="Grade 9",
+            school=sch
+        )
+
+        les = Lesson.objects.create(
+            subject=sub,
+            level=level,
+            instructor=instructor,
+            name="Python 101"
+        )
+        les.learners.add(learner, learner2)
+
+        ses = Session.objects.create(
+            start_time=timezone.now(),
+            type="TCN",
+            end_time=timezone.now(),
+            lesson=les
+        )
+
+        att = Attachment.objects.create(
+            session=ses,
+            notes="Test note"
+        )
+
+        Attachment.objects.filter(pk=att.id).update(notes="Notes Update")
+        att.refresh_from_db()
+
+        ser = AttachmentSerializer(att)
+        self.assertEquals(ser.data.get('notes'), 'Notes Update')
+
+    def test_attachment_list_successful(self):
+        learner = get_user_model().objects.create(
+            username="learner01",
+            email="learner@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+        learner2 = get_user_model().objects.create(
+            username="learner02",
+            email="learner02@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+
+        instructor = get_user_model().objects.create(
+            username="instructor",
+            email="instructor@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+
+        cat = Category.objects.create(
+            basename="sample1",
+            name="Sample Category"
+        )
+
+        sch = School.objects.create(
+            basename="gruut-high",
+            name="Gruut High",
+            category=cat,
+        )
+
+        sub = Subject.objects.create(
+            basename="spanish-fal",
+            name="Spanish FAL",
+            school=sch
+        )
+
+        level = Level.objects.create(
+            basename="grade-9",
+            name="Grade 9",
+            school=sch
+        )
+
+        les = Lesson.objects.create(
+            subject=sub,
+            level=level,
+            instructor=instructor,
+            name="Python 101"
+        )
+        les.learners.add(learner, learner2)
+
+        ses = Session.objects.create(
+            start_time=timezone.now(),
+            type="TCN",
+            end_time=timezone.now(),
+            lesson=les
+        )
+
+        Attachment.objects.create(
+            session=ses,
+            notes="Test note"
+        )
+        Attachment.objects.create(
+            session=ses,
+            notes="Test note 2"
+        )
+
+        att = Attachment.objects.all()
+
+        ser = AttachmentSerializer(att, many=True)
+        self.assertEquals(len(ser.data), 2)
+
+    def test_attachment_delete_successful(self):
+        learner = get_user_model().objects.create(
+            username="learner01",
+            email="learner@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+        learner2 = get_user_model().objects.create(
+            username="learner02",
+            email="learner02@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+
+        instructor = get_user_model().objects.create(
+            username="instructor",
+            email="instructor@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+
+        cat = Category.objects.create(
+            basename="sample1",
+            name="Sample Category"
+        )
+
+        sch = School.objects.create(
+            basename="gruut-high",
+            name="Gruut High",
+            category=cat,
+        )
+
+        sub = Subject.objects.create(
+            basename="spanish-fal",
+            name="Spanish FAL",
+            school=sch
+        )
+
+        level = Level.objects.create(
+            basename="grade-9",
+            name="Grade 9",
+            school=sch
+        )
+
+        les = Lesson.objects.create(
+            subject=sub,
+            level=level,
+            instructor=instructor,
+            name="Python 101"
+        )
+        les.learners.add(learner, learner2)
+
+        ses = Session.objects.create(
+            start_time=timezone.now(),
+            type="TCN",
+            end_time=timezone.now(),
+            lesson=les
+        )
+
+        att1 = Attachment.objects.create(
+            session=ses,
+            notes="Test note"
+        )
+        Attachment.objects.create(
+            session=ses,
+            notes="Test note 2"
+        )
+
+        att = Attachment.objects.all()
+
+        ser = AttachmentSerializer(att, many=True)
+        self.assertEquals(len(ser.data), 2)
+
+        Attachment.objects.filter(pk=att1.id).delete()
+        att = Attachment.objects.all()
+
+        ser = AttachmentSerializer(att, many=True)
+        self.assertEquals(len(ser.data), 1)
+
+    def test_attachment_retrieve_successful(self):
+        learner = get_user_model().objects.create(
+            username="learner01",
+            email="learner@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+        learner2 = get_user_model().objects.create(
+            username="learner02",
+            email="learner02@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+
+        instructor = get_user_model().objects.create(
+            username="instructor",
+            email="instructor@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+
+        cat = Category.objects.create(
+            basename="sample1",
+            name="Sample Category"
+        )
+
+        sch = School.objects.create(
+            basename="gruut-high",
+            name="Gruut High",
+            category=cat,
+        )
+
+        sub = Subject.objects.create(
+            basename="spanish-fal",
+            name="Spanish FAL",
+            school=sch
+        )
+
+        level = Level.objects.create(
+            basename="grade-9",
+            name="Grade 9",
+            school=sch
+        )
+
+        les = Lesson.objects.create(
+            subject=sub,
+            level=level,
+            instructor=instructor,
+            name="Python 101"
+        )
+        les.learners.add(learner, learner2)
+
+        ses = Session.objects.create(
+            start_time=timezone.now(),
+            type="TCN",
+            end_time=timezone.now(),
+            lesson=les
+        )
+
+        att1 = Attachment.objects.create(
+            session=ses,
+            notes="Test note"
+        )
+        Attachment.objects.create(
+            session=ses,
+            notes="Test note 2"
+        )
+
+        att = Attachment.objects.get(pk=att1.id)
+
+        ser = AttachmentSerializer(att)
+        self.assertEquals(ser.data.get('notes'), 'Test note')
+
+
+class TestModerationModel(TestCase):
+    def test_moderation_create_successful(self):
+        learner = get_user_model().objects.create(
+            username="learner01",
+            email="learner@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+        learner2 = get_user_model().objects.create(
+            username="learner02",
+            email="learner02@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+
+        instructor = get_user_model().objects.create(
+            username="instructor",
+            email="instructor@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+
+        cat = Category.objects.create(
+            basename="sample1",
+            name="Sample Category"
+        )
+
+        sch = School.objects.create(
+            basename="gruut-high",
+            name="Gruut High",
+            category=cat,
+        )
+
+        sub = Subject.objects.create(
+            basename="spanish-fal",
+            name="Spanish FAL",
+            school=sch
+        )
+
+        level = Level.objects.create(
+            basename="grade-9",
+            name="Grade 9",
+            school=sch
+        )
+
+        les = Lesson.objects.create(
+            subject=sub,
+            level=level,
+            instructor=instructor,
+            name="Python 101"
+        )
+        les.learners.add(learner, learner2)
+
+        ses = Session.objects.create(
+            start_time=timezone.now(),
+            type="TCN",
+            end_time=timezone.now(),
+            lesson=les
+        )
+
+        mod = Moderation.objects.create(
+            session=ses,
+            learner=learner,
+            learner_score=20,
+            max_score=100,
+            score_type="unit"
+        )
+
+        ser = ModerationSerializer(mod)
+        self.assertIn('id', ser.data.keys())
+        self.assertIsNotNone(ser.data.get('id'))
+
+    def test_moderation_update_successful(self):
+        learner = get_user_model().objects.create(
+            username="learner01",
+            email="learner@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+        learner2 = get_user_model().objects.create(
+            username="learner02",
+            email="learner02@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+
+        instructor = get_user_model().objects.create(
+            username="instructor",
+            email="instructor@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+
+        cat = Category.objects.create(
+            basename="sample1",
+            name="Sample Category"
+        )
+
+        sch = School.objects.create(
+            basename="gruut-high",
+            name="Gruut High",
+            category=cat,
+        )
+
+        sub = Subject.objects.create(
+            basename="spanish-fal",
+            name="Spanish FAL",
+            school=sch
+        )
+
+        level = Level.objects.create(
+            basename="grade-9",
+            name="Grade 9",
+            school=sch
+        )
+
+        les = Lesson.objects.create(
+            subject=sub,
+            level=level,
+            instructor=instructor,
+            name="Python 101"
+        )
+        les.learners.add(learner, learner2)
+
+        ses = Session.objects.create(
+            start_time=timezone.now(),
+            type="TCN",
+            end_time=timezone.now(),
+            lesson=les
+        )
+
+        mod = Moderation.objects.create(
+            session=ses,
+            learner=learner,
+            learner_score=20,
+            max_score=100,
+            score_type="unit"
+        )
+
+        Moderation.objects.filter(pk=mod.id).update(score_type="percentage")
+        mod.refresh_from_db()
+
+        ser = ModerationSerializer(mod)
+        self.assertEquals(ser.data.get('score_type'), 'percentage')
+
+    def test_moderation_list_successful(self):
+        learner = get_user_model().objects.create(
+            username="learner01",
+            email="learner@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+        learner2 = get_user_model().objects.create(
+            username="learner02",
+            email="learner02@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+
+        instructor = get_user_model().objects.create(
+            username="instructor",
+            email="instructor@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+
+        cat = Category.objects.create(
+            basename="sample1",
+            name="Sample Category"
+        )
+
+        sch = School.objects.create(
+            basename="gruut-high",
+            name="Gruut High",
+            category=cat,
+        )
+
+        sub = Subject.objects.create(
+            basename="spanish-fal",
+            name="Spanish FAL",
+            school=sch
+        )
+
+        level = Level.objects.create(
+            basename="grade-9",
+            name="Grade 9",
+            school=sch
+        )
+
+        les = Lesson.objects.create(
+            subject=sub,
+            level=level,
+            instructor=instructor,
+            name="Python 101"
+        )
+        les.learners.add(learner, learner2)
+
+        ses = Session.objects.create(
+            start_time=timezone.now(),
+            type="TCN",
+            end_time=timezone.now(),
+            lesson=les
+        )
+
+        Moderation.objects.create(
+            session=ses,
+            learner=learner,
+            learner_score=20,
+            max_score=100,
+            score_type="unit"
+        )
+        Moderation.objects.create(
+            session=ses,
+            learner=learner,
+            learner_score=40,
+            max_score=100,
+            score_type="percentage"
+        )
+
+        mod = Moderation.objects.all()
+
+        ser = ModerationSerializer(mod, many=True)
+        self.assertEquals(len(ser.data), 2)
+
+    def test_moderation_delete_successful(self):
+        learner = get_user_model().objects.create(
+            username="learner01",
+            email="learner@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+        learner2 = get_user_model().objects.create(
+            username="learner02",
+            email="learner02@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+
+        instructor = get_user_model().objects.create(
+            username="instructor",
+            email="instructor@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+
+        cat = Category.objects.create(
+            basename="sample1",
+            name="Sample Category"
+        )
+
+        sch = School.objects.create(
+            basename="gruut-high",
+            name="Gruut High",
+            category=cat,
+        )
+
+        sub = Subject.objects.create(
+            basename="spanish-fal",
+            name="Spanish FAL",
+            school=sch
+        )
+
+        level = Level.objects.create(
+            basename="grade-9",
+            name="Grade 9",
+            school=sch
+        )
+
+        les = Lesson.objects.create(
+            subject=sub,
+            level=level,
+            instructor=instructor,
+            name="Python 101"
+        )
+        les.learners.add(learner, learner2)
+
+        ses = Session.objects.create(
+            start_time=timezone.now(),
+            type="TCN",
+            end_time=timezone.now(),
+            lesson=les
+        )
+
+        mod1 = Moderation.objects.create(
+            session=ses,
+            learner=learner,
+            learner_score=20,
+            max_score=100,
+            score_type="unit"
+        )
+        Moderation.objects.create(
+            session=ses,
+            learner=learner,
+            learner_score=40,
+            max_score=100,
+            score_type="percentage"
+        )
+
+        mod = Moderation.objects.all()
+
+        ser = ModerationSerializer(mod, many=True)
+        self.assertEquals(len(ser.data), 2)
+
+        Moderation.objects.filter(pk=mod1.id).delete()
+        mod = Moderation.objects.all()
+
+        ser = ModerationSerializer(mod, many=True)
+        self.assertEquals(len(ser.data), 1)
+
+    def test_moderation_retrieve_successful(self):
+        learner = get_user_model().objects.create(
+            username="learner01",
+            email="learner@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+        learner2 = get_user_model().objects.create(
+            username="learner02",
+            email="learner02@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+
+        instructor = get_user_model().objects.create(
+            username="instructor",
+            email="instructor@bondeveloper.coom",
+            password="Qwerty!@#",
+        )
+
+        cat = Category.objects.create(
+            basename="sample1",
+            name="Sample Category"
+        )
+
+        sch = School.objects.create(
+            basename="gruut-high",
+            name="Gruut High",
+            category=cat,
+        )
+
+        sub = Subject.objects.create(
+            basename="spanish-fal",
+            name="Spanish FAL",
+            school=sch
+        )
+
+        level = Level.objects.create(
+            basename="grade-9",
+            name="Grade 9",
+            school=sch
+        )
+
+        les = Lesson.objects.create(
+            subject=sub,
+            level=level,
+            instructor=instructor,
+            name="Python 101"
+        )
+        les.learners.add(learner, learner2)
+
+        ses = Session.objects.create(
+            start_time=timezone.now(),
+            type="TCN",
+            end_time=timezone.now(),
+            lesson=les
+        )
+
+        mod1 = Moderation.objects.create(
+            session=ses,
+            learner=learner,
+            learner_score=20,
+            max_score=100,
+            score_type="unit"
+        )
+        Moderation.objects.create(
+            session=ses,
+            learner=learner,
+            learner_score=40,
+            max_score=100,
+            score_type="percentage"
+        )
+
+        mod = Moderation.objects.get(pk=mod1.id)
+
+        ser = ModerationSerializer(mod)
+        self.assertEquals(ser.data.get('score_type'), 'unit')

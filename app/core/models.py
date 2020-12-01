@@ -35,8 +35,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=True)
     is_active = models.BooleanField(default=True)
 
-    # schools = models.ManyToManyField('School', through='Profile')
-
     objects = UserManager()
 
     USERNAME_FIELD = EMAIL_FIELD = 'email'
@@ -82,7 +80,7 @@ class Level(models.Model):
 
 
 class Lesson(models.Model):
-    subject = models.ForeignKey(Subject, on_delete=models.DO_NOTHING)
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     level = models.ForeignKey(Level, on_delete=models.DO_NOTHING)
     instructor = models.ForeignKey(get_user_model(),
                                    related_name="instructor",
@@ -91,3 +89,42 @@ class Lesson(models.Model):
     learners = models.ManyToManyField(get_user_model(), blank=True,
                                       related_name="learners")
     name = models.CharField(max_length=255)
+
+
+class Session(models.Model):
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+    type = models.CharField(
+                            max_length=50,
+                            choices=[
+                                ('LCT', "Lecture"),
+                                ('TST', "Test"),
+                                ('XM', "Exam"),
+                                ('TCN', "Teaching"),
+                                ('PRT', "Practical")
+                            ],
+                            default='Teaching'
+                            )
+    attendance = models.ManyToManyField(get_user_model(), blank=True)
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
+
+
+class Attachment(models.Model):
+    notes = models.CharField(max_length=255)
+    session = models.ForeignKey(Session, on_delete=models.CASCADE)
+    file = models.FileField(upload_to='session')
+
+
+class Moderation(models.Model):
+    session = models.ForeignKey(Session, on_delete=models.CASCADE)
+    learner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    learner_score = models.IntegerField()
+    max_score = models.IntegerField()
+    score_type = models.CharField(
+                                  max_length=20,
+                                  choices=[
+                                    ('unit', 'Unit'),
+                                    ('percentage', 'Percentage')
+                                  ],
+                                  default='units'
+                                  )
