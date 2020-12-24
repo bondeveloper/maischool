@@ -1,32 +1,40 @@
-version: "3.8"
+version: '3.8'
+
 services:
   app:
-    container_name: maischool_app
     build:
       context: .
-      dockerfile: docker/app/Dockerfile
     ports:
       - "8000:8000"
     volumes:
       - ./app:/app
+      - static_data:/vol/web
     environment:
       - DB_HOST=db
       - DB_NAME=maischool
       - DB_USER=postgres
       - DB_PASSWORD=postgres
-      - DEBUG=1
+      - ALLOWED_HOSTS=127.0.0.1,localhost
+      - SECRET_KEY=samplesecretkey123
     depends_on:
       - db
-    command: sh -c "python manage.py wait_for_db &&
-                    python manage.py makemigrations &&
-                    python manage.py migrate &&
-                    python manage.py runserver 0.0.0.0:8000"
+    networks:
+      - maischool_network
+    
+  proxy:
+    build:
+      context: ./proxy
+    volumes:
+      - static_data:/vol/static
+    ports:
+      - "8080:8080"
+    depends_on:
+      - app
     networks:
       - maischool_network
 
   db:
     image: postgres:latest
-    container_name: maischool_db
     environment:
       - POSTGRES_DB=maischool
       - POSTGRES_USER=postgres
@@ -36,6 +44,10 @@ services:
     ports:
       - "5432:5432"
 
+volumes:
+  static_data:
+
 networks:
   maischool_network:
     driver: bridge
+

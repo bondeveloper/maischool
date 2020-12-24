@@ -18,6 +18,7 @@ urlpatterns = [
     path('create/', views.SchoolCreateAPIView.as_view(),
          name="create"),
     path('', views.SchoolListAPIView.as_view(), name="list"),
+    path('public/', views.SchoolPublicListAPIView.as_view(), name="public-list"),
     path('<int:pk>/update/', views.SchoolUpdateAPIView.as_view(),
          name="update"),
     path('<int:pk>/delete/', views.SchoolDeleteAPIView.as_view(),

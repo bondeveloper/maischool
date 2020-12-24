@@ -18,7 +18,6 @@ class CategorySerializer(serializers.ModelSerializer):
         validated_data.pop('basename', None)
         return super().update(instance, validated_data)
 
-
 class SchoolSerializer(serializers.ModelSerializer):
     users = UserSerializer(many=True)
 
@@ -63,6 +62,15 @@ class SchoolSerializer(serializers.ModelSerializer):
 
         validated_data.pop('users')
         return super().update(instance, validated_data)
+
+
+class SchoolPublicSerializer(SchoolSerializer):
+     class Meta:
+        model = School
+        fields = ('id', 'basename', 'name', 'category')
+        read_only_fields = ('id',)
+        ordering = ('basename',)
+        # extra_kwargs = {'users': {'write_only': True}}
 
 
 class SubjectSerializer(serializers.ModelSerializer):

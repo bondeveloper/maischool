@@ -8,3 +8,4 @@ django-allauth
 djangorestframework-simplejwt
 django-invitations
 whitenoise
+uWSGI>=2.0.18,<2.1
