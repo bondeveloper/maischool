@@ -6,6 +6,8 @@ from core.models import Category, School, Subject, Level, Lesson, Session, \
                         Attachment, Moderation
 from user.serializers import UserSerializer
 
+# from core.helpers import removeKey
+
 
 class CategorySerializer(serializers.ModelSerializer):
 
@@ -28,35 +30,34 @@ class SchoolSerializer(serializers.ModelSerializer):
         ordering = ('basename',)
         extra_kwargs = {'users': {'write_only': True}}
 
-    def create_or_update_users(self, users):
-        user_ids = []
-        for user in users:
-            user_instance, created = get_user_model().objects.update_or_create(
-                    pk=user.get('id'),
-                    defaults=user
-                    )
-            user_ids.append(user_instance.pk)
-        return user_ids
 
     def create(self, validated_data):
-
+  
         """on create, there can only ever be one user"""
         users_data = validated_data.pop("users")
         if users_data is None or len(users_data) < 1:
             raise ValueError("School user is required")
 
-        user_data = users_data[0]
-        email = user_data.pop("email")
-        password = user_data.pop("password")
-
         school = School.objects.create(**validated_data)
-        user = get_user_model().objects.create_user(
-            email=email,
-            password=password,
-            **user_data
-        )
-        school.users.add(user)
+        users = []
+
+        for user_data in users_data:
+
+            # user_data = users_data[0]
+            email = user_data.pop("email")
+            password = user_data.pop("password")
+            user = get_user_model().objects.create_user(
+                email=email,
+                password=password,
+                **user_data
+            )
+
+            users.append(user)
+        
+        school.users.add(*users)
+
         return school
+
 
     def update(self, instance, validated_data):
 
@@ -70,7 +71,6 @@ class SchoolPublicSerializer(SchoolSerializer):
         fields = ('id', 'basename', 'name', 'category')
         read_only_fields = ('id',)
         ordering = ('basename',)
-        # extra_kwargs = {'users': {'write_only': True}}
 
 
 class SubjectSerializer(serializers.ModelSerializer):

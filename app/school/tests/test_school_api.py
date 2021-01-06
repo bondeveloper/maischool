@@ -72,12 +72,20 @@ class TestPublicSchoolApi(TestCase):
                 "password": "Qwerty!@#",
                 "first_name": "Test User Firstname",
                 "last_name": "Test User Lastname"
+            },
+            {
+                "username": "testuser02",
+                "email": "testuser02@bondeveloper.coom",
+                "password": "Qwerty!@#",
+                "first_name": "Test User 02 Firstname",
+                "last_name": "Test User 02 Lastname"
             }]
         }
+
         res = self.client.post(create_school_url, payload, format='json')
         self.assertEquals(res.status_code, status.HTTP_201_CREATED)
         self.assertIn("users", res.data.keys())
-        self.assertTrue(len(res.data.get("users")) == 1)
+        self.assertTrue(len(res.data.get("users")) == 2)
         self.assertIn("id", res.data.get("users")[0].keys())
 
     def test_add_admin_user_to_school(self):

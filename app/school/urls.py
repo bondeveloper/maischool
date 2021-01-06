@@ -4,6 +4,8 @@ from school import views
 app_name = 'school'
 
 urlpatterns = [
+
+     # category urls
     path('category/', views.CategoryListAPIView.as_view(),
          name='category-list'),
     path('category/create/', views.CategoryCreateAPIView.as_view(),
@@ -15,6 +17,7 @@ urlpatterns = [
     path('category/<int:pk>/view/', views.CategoryRetrieveAPIView.as_view(),
          name='category-view'),
 
+     # School urls
     path('create/', views.SchoolCreateAPIView.as_view(),
          name="create"),
     path('', views.SchoolListAPIView.as_view(), name="list"),
@@ -26,6 +29,7 @@ urlpatterns = [
     path('<int:pk>/view/', views.SchoolRetrieveAPIView.as_view(),
          name="view"),
 
+     # Subject urls
     path('subjects/create/', views.SubjectCreateAPIView.as_view(),
          name='subject-create'),
     path('subjects/',  views.SubjectListAPIView.as_view(),
