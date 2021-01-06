@@ -20,6 +20,14 @@ class CategorySerializer(serializers.ModelSerializer):
         validated_data.pop('basename', None)
         return super().update(instance, validated_data)
 
+
+class CategoryPublicSerializer(CategorySerializer):
+     class Meta:
+        model = Category
+        fields = ('id', 'basename', 'name')
+        read_only_fields = ('id',)
+
+
 class SchoolSerializer(serializers.ModelSerializer):
     users = UserSerializer(many=True)
 

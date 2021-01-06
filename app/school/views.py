@@ -19,6 +19,11 @@ class CategoryListAPIView(generics.ListAPIView):
     queryset = Category.objects.all()
     serializer_class = CustomSerializers.CategorySerializer
 
+class CategoryPublicListAPIView(generics.ListAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CustomSerializers.CategoryPublicSerializer
+    permission_classes = (AllowAny,)
+
 
 class CategoryDestroyAPIView(generics.DestroyAPIView):
     queryset = Category.objects.all()

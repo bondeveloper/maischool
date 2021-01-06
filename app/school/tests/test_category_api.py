@@ -24,6 +24,16 @@ def sample_category(basename="primary-school", name="Primary School"):
         name=name
     )
 
+class PublicCategoryTestApi(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+
+    def test_authentication_to_required(self):
+        res = self.client.get(reverse('school:category-public-list'))
+
+        self.assertEquals(res.status_code, status.HTTP_200_OK)
+
+
 
 class PrivateCategoryTestApi(TestCase):
     def setUp(self):

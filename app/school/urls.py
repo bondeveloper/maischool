@@ -8,6 +8,8 @@ urlpatterns = [
      # category urls
     path('category/', views.CategoryListAPIView.as_view(),
          name='category-list'),
+     path('category/public/', views.CategoryPublicListAPIView.as_view(),
+         name='category-public-list'),
     path('category/create/', views.CategoryCreateAPIView.as_view(),
          name='category-create'),
     path('category/<int:pk>/update/', views.CategoryUpdateAPIView.as_view(),
