@@ -15,7 +15,7 @@ reg_url = '/api/v1/accounts/auth/registration/'
 login_url = '/api/v1/accounts/auth/login/'
 
 
-class TestPublicLessonApi(TestCase):
+class TestPrivateLessonApi(TestCase):
     def setUp(self):
         self.client = APIClient()
 
@@ -27,9 +27,9 @@ class TestPublicLessonApi(TestCase):
             "username": "testuser01"
         }
 
-        auth_user = self.client.post(reg_url, payload, format='json')
+        self.auth = self.client.post(reg_url, payload, format='json').data
 
-        access_token = auth_user.data.get('access_token')
+        access_token = self.auth.get('access_token')
         self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + access_token)
 
     def test_lesson_authentication_required(self):
@@ -78,21 +78,26 @@ class TestPublicLessonApi(TestCase):
             password="Qwerty!@#",
         )
 
+        name = 'Django for beginners'
         payload = {
             "subject": SubjectSerializer(sub).data.get('id'),
             "level": LevelSerializer(level).data.get('id'),
-            "instructor": UserSerializer(instructor).data.get('id'),
+            # "instructor": self.auth.get('user')['pk'],
             "learners": [
                             UserSerializer(learner).data.get('id'),
                             UserSerializer(learner2).data.get('id')
                         ],
-            "name": "Django for beginners"
+            "name": name
         }
 
         res = self.client.post(reverse("school:lesson-create"), payload,
                                format='json'
                                )
         self.assertEquals(res.status_code, status.HTTP_201_CREATED)
+        self.assertIn('id', res.data)
+        self.assertIn('name', res.data)
+        self.assertEquals(res.data.get('name'), name)
+
 
     def test_lesson_update_api_successful(self):
 

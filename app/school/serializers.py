@@ -99,8 +99,17 @@ class LevelSerializer(serializers.ModelSerializer):
 class LessonSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lesson
-        fields = ('id', 'subject', 'level', 'instructor', 'learners', 'name')
+        fields = ('id', 'subject', 'level', 'learners', 'name')
         read_only_fields = ('id',)
+        extra_kwargs = {'instructor': {'write_only': True}}
+
+    def create(self, validated_data):
+        user_id = None
+        request = self.context.get('request')
+        if request and hasattr(request, 'user') and request.user and hasattr(request.user, 'id'):
+            validated_data['instructor'] = request.user
+
+        return super().create(validated_data)
 
 
 class SessionSerializer(serializers.ModelSerializer):
